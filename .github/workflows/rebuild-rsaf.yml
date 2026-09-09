@@ -105,7 +105,10 @@ jobs:
         run: |
           set -euo pipefail
           printf '\nreplace github.com/rclone/rclone => %s\n' "${GITHUB_WORKSPACE}/rclone-private" >> go.mod
+          printf '\ntool golang.org/x/mobile/cmd/gobind\ntool golang.org/x/mobile/cmd/gomobile\n' >> go.mod
           grep -F "replace github.com/rclone/rclone => ${GITHUB_WORKSPACE}/rclone-private" go.mod >/dev/null
+          grep -F 'tool golang.org/x/mobile/cmd/gobind' go.mod >/dev/null
+          grep -F 'tool golang.org/x/mobile/cmd/gomobile' go.mod >/dev/null
 
       - name: Create Android debug keystore
         if: steps.existing.outputs.exists != 'true'
