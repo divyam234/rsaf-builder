@@ -23,9 +23,7 @@ jobs:
     env:
       UPSTREAM_REPO: chenxiaolong/RSAF
       RCLONE_REPO: divyam234/rclone-private
-      GOPRIVATE: github.com/rclone/rclone
-      GONOPROXY: github.com/rclone/rclone
-      GONOSUMDB: github.com/rclone/rclone
+      GOPRIVATE: github.com/divyam234/rclone-private
 
     steps:
       - name: Resolve upstream release
@@ -114,19 +112,12 @@ jobs:
           short="${sha:0:12}"
           unix_time="$(git -C "${GITHUB_WORKSPACE}/rclone-private" show -s --format=%ct "$sha")"
           stamp="$(date -u -d "@$unix_time" +%Y%m%d%H%M%S)"
+          private_version="v0.0.0-${stamp}-${short}"
+          official_version="$(awk '$1 == "github.com/rclone/rclone" { print $2; exit }' go.mod)"
 
-          if base_tag="$(git -C "${GITHUB_WORKSPACE}/rclone-private" describe --tags --match 'v[0-9]*' --abbrev=0 "$sha" 2>/dev/null)"; then
-            version="${base_tag#v}"
-            IFS='.' read -r major minor patch <<< "$version"
-            pseudo="v${major}.${minor}.$((patch + 1))-0.${stamp}-${short}"
-          else
-            pseudo="v0.0.0-${stamp}-${short}"
-          fi
-
-          git config --global url."https://x-access-token:${PAT_TOKEN}@github.com/${RCLONE_REPO}.git".insteadOf "https://github.com/rclone/rclone"
-          perl -0pi -e 's#github\.com/rclone/rclone\s+v[^\s]+#github.com/rclone/rclone '"$pseudo"'#' go.mod
-          grep -F "github.com/rclone/rclone $pseudo" go.mod >/dev/null
-
+          git config --global url."https://x-access-token:${PAT_TOKEN}@github.com/${RCLONE_REPO}.git".insteadOf "https://github.com/divyam234/rclone-private"
+          printf '\nreplace github.com/rclone/rclone %s => github.com/divyam234/rclone-private %s\n' "$official_version" "$private_version" >> go.mod
+          grep -F "replace github.com/rclone/rclone $official_version => github.com/divyam234/rclone-private $private_version" go.mod >/dev/null
       - name: Create Android debug keystore
         if: steps.existing.outputs.exists != 'true'
         run: |
