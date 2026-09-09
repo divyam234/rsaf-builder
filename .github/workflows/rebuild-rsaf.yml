@@ -104,8 +104,8 @@ jobs:
         working-directory: upstream/rcbridge
         run: |
           set -euo pipefail
-          go mod edit -replace="github.com/rclone/rclone=${GITHUB_WORKSPACE}/rclone-private"
-          go mod edit -json | jq -e --arg dir "${GITHUB_WORKSPACE}/rclone-private" '.Replace[] | select(.Old.Path == "github.com/rclone/rclone" and .New.Dir == $dir)' >/dev/null
+          printf '\nreplace github.com/rclone/rclone => %s\n' "${GITHUB_WORKSPACE}/rclone-private" >> go.mod
+          grep -F "replace github.com/rclone/rclone => ${GITHUB_WORKSPACE}/rclone-private" go.mod >/dev/null
 
       - name: Create Android debug keystore
         if: steps.existing.outputs.exists != 'true'
