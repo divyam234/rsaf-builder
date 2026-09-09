@@ -137,6 +137,13 @@ jobs:
           RELEASE_KEY_PASSPHRASE: android
         run: |
           set -euo pipefail
+
+          ./gradlew --no-daemon :app:golang
+          (
+            cd rcbridge
+            ../external/go/bin/go mod tidy
+            ../external/go/bin/go list golang.org/x/mobile/bind >/dev/null
+          )
           ./gradlew --no-daemon assembleRelease
 
       - name: Collect release files
