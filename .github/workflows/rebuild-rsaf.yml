@@ -110,8 +110,9 @@ jobs:
           git -C "${GITHUB_WORKSPACE}/rclone-private" archive HEAD | tar -x -C rclone-private
 
           grep -Fx 'module github.com/rclone/rclone' rclone-private/go.mod >/dev/null
-          printf '\nreplace github.com/rclone/rclone => ./rclone-private\n' >> go.mod
+          printf '\nreplace github.com/rclone/rclone => ./rclone-private\n\ntool golang.org/x/mobile/cmd/gobind\n' >> go.mod
           grep -Fx 'replace github.com/rclone/rclone => ./rclone-private' go.mod >/dev/null
+          grep -Fx 'tool golang.org/x/mobile/cmd/gobind' go.mod >/dev/null
       - name: Create Android debug keystore
         if: steps.existing.outputs.exists != 'true'
         run: |
