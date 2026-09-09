@@ -76,17 +76,17 @@ jobs:
           repository: divyam234/rclone-private
           ref: main
           path: rclone-private
-          token: ${{ secrets.RCLONE_REPO_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 1
 
       - name: Validate private repo token
         if: steps.existing.outputs.exists != 'true'
         env:
-          RCLONE_REPO_TOKEN: ${{ secrets.RCLONE_REPO_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -euo pipefail
-          if [[ -z "${RCLONE_REPO_TOKEN:-}" ]]; then
-            echo "Missing required secret: RCLONE_REPO_TOKEN" >&2
+          if [[ -z "${PAT_TOKEN:-}" ]]; then
+            echo "Missing required secret: PAT_TOKEN" >&2
             exit 1
           fi
 

@@ -8,7 +8,7 @@ The workflow runs hourly and can also be started manually for a specific RSAF ta
 
 Configure this repository secret before running the workflow:
 
-- `RCLONE_REPO_TOKEN`: GitHub token with read access to `divyam234/rclone-private`.
+- `PAT_TOKEN`: GitHub token with read access to `divyam234/rclone-private`.
 
 The workflow generates a standard Android debug keystore at build time and uses the usual debug credentials (`android` / `androiddebugkey`) to sign the release APKs.
 
@@ -17,7 +17,7 @@ The workflow generates a standard Android debug keystore at build time and uses 
 For each new upstream RSAF release, the workflow:
 
 1. Checks out the exact upstream RSAF release tag and its Go submodule.
-2. Checks out `divyam234/rclone-private` from `main` using `RCLONE_REPO_TOKEN`.
+2. Checks out `divyam234/rclone-private` from `main` using `PAT_TOKEN`.
 3. Adds a local Go module replacement for `github.com/rclone/rclone` in RSAF's `rcbridge` build.
 4. Builds RSAF release APKs signed with the generated Android debug key.
 5. Publishes those APKs and `SHA256SUMS` under the same tag in this repository.
