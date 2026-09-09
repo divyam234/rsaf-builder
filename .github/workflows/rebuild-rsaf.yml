@@ -23,7 +23,6 @@ jobs:
     env:
       UPSTREAM_REPO: chenxiaolong/RSAF
       RCLONE_REPO: divyam234/rclone-private
-      GOPRIVATE: github.com/divyam234/rclone-private
 
     steps:
       - name: Resolve upstream release
@@ -100,24 +99,19 @@ jobs:
           cache: gradle
           cache-dependency-path: upstream/**/*.gradle*
 
-      - name: Use private rclone commit
+      - name: Use private rclone source
         if: steps.existing.outputs.exists != 'true'
         working-directory: upstream/rcbridge
-        env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -euo pipefail
 
-          sha="$(git -C "${GITHUB_WORKSPACE}/rclone-private" rev-parse HEAD)"
-          short="${sha:0:12}"
-          unix_time="$(git -C "${GITHUB_WORKSPACE}/rclone-private" show -s --format=%ct "$sha")"
-          stamp="$(date -u -d "@$unix_time" +%Y%m%d%H%M%S)"
-          private_version="v0.0.0-${stamp}-${short}"
-          official_version="$(awk '$1 == "github.com/rclone/rclone" { print $2; exit }' go.mod)"
+          rm -rf rclone-private
+          mkdir rclone-private
+          git -C "${GITHUB_WORKSPACE}/rclone-private" archive HEAD | tar -x -C rclone-private
 
-          git config --global url."https://x-access-token:${PAT_TOKEN}@github.com/${RCLONE_REPO}.git".insteadOf "https://github.com/divyam234/rclone-private"
-          printf '\nreplace github.com/rclone/rclone %s => github.com/divyam234/rclone-private %s\n' "$official_version" "$private_version" >> go.mod
-          grep -F "replace github.com/rclone/rclone $official_version => github.com/divyam234/rclone-private $private_version" go.mod >/dev/null
+          grep -Fx 'module github.com/rclone/rclone' rclone-private/go.mod >/dev/null
+          printf '\nreplace github.com/rclone/rclone => ./rclone-private\n' >> go.mod
+          grep -Fx 'replace github.com/rclone/rclone => ./rclone-private' go.mod >/dev/null
       - name: Create Android debug keystore
         if: steps.existing.outputs.exists != 'true'
         run: |
